@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ES6 - II</title>
+    <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        .head {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 56px;
+            padding-left: 2%;
+            padding-right: 2%;
+            width: 96%;
+            background-color: rgb(24, 26, 27);
+            display: flex;
+            font-size: 20px;
+            color: gray;
+        }
+
+        .head>div {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 20px;
+            margin-right: 20px;
+            padding-left: 10px;
+            padding-right: 10px;
+
+        }
+
+        input,
+        button {
+            padding: 4px;
+            font-size: 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        input:focus,
+        button:focus {
+            outline: none;
+        }
+
+        #query {
+            width: 400px;
+        }
+
+        .content {
+            margin-top: 56px;
+            padding-top: 30px;
+            width: 80%;
+            padding-right: 10%;
+            padding-left: 10%;
+        }
+
+        .content>div {
+            padding: 10px;
+            margin: 5px;
+        }
+
+        .url1 {
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .title1 {
+            font-size: 20px;
+            color: #1a0dab;
+            line-height: 1.3;
+            cursor: pointer;
+        }
+
+        .title1:hover {
+            text-decoration: underline;
+        }
+        .page{
+            margin-top: 20px;
+            margin-left: 40px;
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .page>div{
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .pageNumCol{
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="head">
+        <div>Google</div>
+        <div>
+            <input type="text" id="query">
+            <button onclick="searchResult()">Search</button>
+        </div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="page" id="page"></div>
+
+
+    </div>
+
+</body>
+
+</html>
+<script>
+
+    let resultDiv = document.getElementById("content");
+    var pageDiv = document.getElementById("page");
+    async function searchResult() {
+        try {
+            var search = document.getElementById("query").value;
+            //document.getElementById("query").value = null;
+            let res = await fetch(`http://api.serpstack.com/search?access_key=75bf7fd3acf297312db0efe7219a81d1&num=30&google_domain=google.com&query=${search}`);
+            let data = await res.json();
+            console.log("data: ", data);
+
+            let { organic_results } = data;
+            //console.log(organic_results);
+            // // items = items.filter((el) => {
+            // //     return el.id.videoId != undefined;
+            // // });
+            var sp=15;
+
+            pageDiv.innerHTML = null;
+
+            dispResult(organic_results.slice(0,sp));
+
+            var pageNum = Math.ceil(organic_results.length/sp);
+
+            console.log(pageNum);
+            for (let i = 1; i <= pageNum; i++) {
+                if(i!=pageNum){
+                    var dataX = organic_results.slice(sp * (i - 1), sp * i);
+                }else {
+                    dataX = organic_results.slice(sp * (i - 1));
+                }
+                
+                pageDisp(i,dataX);
+            }
+
+        }
+        catch (err) {
+            console.log("err:", err);
+        }
+
+
+    }
+
+
+    function pageDisp(num,data) {
+
+        var div = document.createElement("div");
+        div.innerHTML = num;
+        if(num==1) div.style.backgroundColor = "#4CAF50";
+        div.setAttribute("class","pageNumCol");
+        div.addEventListener("click",function () {
+            dispResult(data);
+            var divCheck = document.getElementsByClassName("pageNumCol");
+            //console.log(divCheck[0]);
+            for (let i = 0; i < divCheck.length; i++) {
+                divCheck[i].style.backgroundColor = "white";
+            }
+            div.style.backgroundColor = "#4CAF50";
+        })
+        pageDiv.append(div);
+        
+    }
+
+    function dispResult(result) {
+        resultDiv.innerHTML = null;
+        result.forEach(({ title, url }) => {
+            //console.log("Title: ",title);
+            //console.log("url: ", url);
+            var div = document.createElement("div");
+            var div1 = document.createElement("div");
+            var div2 = document.createElement("div");
+            div1.innerHTML = url;
+            div1.setAttribute("class", "url1");
+
+            div2.innerHTML = title;
+            div2.setAttribute("class", "title1");
+
+            div.append(div1, div2);
+            resultDiv.append(div);
+            div1.addEventListener("click", function () {
+                window.open(url);
+            });
+            div2.addEventListener("click", function () {
+                window.open(url);
+            });
+        });
+        
+    }
+
+
+
+</script>
